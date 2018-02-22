@@ -4,14 +4,6 @@ Send your logs through Telegram bot to any chat and make them look fancy!
 
 ![Screenshot](https://i.imgur.com/ISWxisv.jpg)
 
-## Installation
-
-Install with [Composer](https://github.com/composer/composer)
-
-```bash
-composer require jacklul/monolog-telegram
-```
-
 ## Prerequisites
 
 You will need Telegram Bot API token, [see here](https://core.telegram.org/bots#creating-a-new-bot) to learn how to obtain one. 
@@ -23,6 +15,14 @@ One of the simpliest ways to do that is to interact with the bot in target chat:
 - channels -> post something in it
 
 After interacting visit `https://api.telegram.org/botTOKEN/getUpdates` (replace `TOKEN` with your actual bot token), you will be able to find the chat id (`chat_id`) in the result JSON.
+
+## Installation
+
+Install with [Composer](https://github.com/composer/composer)
+
+```bash
+composer require jacklul/monolog-telegram
+```
 
 ## Usage
 
