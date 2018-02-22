@@ -50,17 +50,17 @@ By default all messages are sent in HTML format, you can force a normal text for
 $handler->setFormatter(new TelegramFormatter(false));
 ```
 
-It is advised to use the handler through **Monolog**'s [DeduplicationHandler](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Handler/DeduplicationHandler.php) (and also [BufferHandler](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Handler/BufferHandler.php)) to avoid flooding the chat (and hitting Telegram API's limits):
+It is advised to use the handler through **Monolog**'s [DeduplicationHandler](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Handler/DeduplicationHandler.php) to avoid flooding the chat (and hitting Telegram API's limits):
 
 ```php
-$handler = new TelegramHandler('TOKEN', 123456789, Logger::ERROR);
-$logger->pushHandler(new DeduplicationHandler(new BufferHandler($handler)));
+$handler = new TelegramHandler('TOKEN', 123456789);
+$logger->pushHandler(new DeduplicationHandler($handler));
 ```
 
 You can set custom options that are passed to [Guzzle](https://github.com/guzzle/guzzle)'s client:
 
 ```php
-$handler = new TelegramHandler('TOKEN', 123456789, Logger::ERROR, ['timeout' => 10, 'handler' => new StreamHandler()]);
+$handler = new TelegramHandler('TOKEN', 123456789, ['timeout' => 10, 'handler' => new StreamHandler()]);
 ```
 
 ## License
