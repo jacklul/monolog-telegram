@@ -50,7 +50,7 @@ By default all messages are sent in HTML format, you can force a normal text for
 $handler->setFormatter(new TelegramFormatter(false));
 ```
 
-It is advised to use the handler through **Monolog**'s [DeduplicationHandler](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Handler/DeduplicationHandler.php) to avoid flooding the chat (and hitting Telegram API's limits):
+It is advised to use the handler through **Monolog**'s [DeduplicationHandler](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Handler/DeduplicationHandler.php) to avoid flooding the chat (and hitting Telegram API limits):
 
 ```php
 $handler = new TelegramHandler('TOKEN', 123456789);
