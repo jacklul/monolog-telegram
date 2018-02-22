@@ -1,0 +1,34 @@
+{
+  "name": "jacklul/monolog-telegram",
+  "type": "library",
+  "description": "Sends your logs through Telegram bot to any chat.",
+  "keywords": [
+    "monolog",
+    "telegram",
+    "log",
+    "logging"
+  ],
+  "license": "MIT",
+  "support": {
+    "issues": "https://github.com/jacklul/monolog-telegram/issues",
+    "source": "https://github.com/jacklul/monolog-telegram"
+  },
+  "authors": [
+    {
+      "name": "Jack'lul",
+      "email": "jacklulcat@gmail.com",
+      "homepage": "https://jacklul.github.io",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^5.5|^7.0",
+    "monolog/monolog": "^1.23",
+    "guzzlehttp/guzzle": "^6.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "jacklul\\MonologTelegramHandler\\": "src/"
+    }
+  }
+}
