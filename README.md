@@ -6,45 +6,44 @@ Send your logs through Telegram bot to any chat and make them look fancy!
 
 ## Prerequisites
 
-You will need Telegram Bot API token, [see here](https://core.telegram.org/bots#creating-a-new-bot) to learn how to obtain one. 
-
-You will also need to know the Chat ID of the chat to which you want to send the logs.
+ - Telegram Bot API token - [see here](https://core.telegram.org/bots#creating-a-new-bot) to learn how to obtain one
+ - ID of the chat to which you want to send the logs - see below
  
-One of the simpliest ways to do that is to interact with the bot in target chat:
-- private and group chats -> send any dummy command
-- channels -> post something in it
+#### Obtaining chat ID
+
+One of the simpliest ways to do that is to interact with the bot in the target chat:
+- private and group chats - send any dummy command
+- channels - post something in it
 
 After interacting visit `https://api.telegram.org/botTOKEN/getUpdates` (replace `TOKEN` with your actual bot token), you will be able to find the chat id (`chat_id`) in the result JSON.
 
 ## Installation
 
-Install with [Composer](https://github.com/composer/composer)
+Install with [Composer](https://github.com/composer/composer):
 
 ```bash
-composer require jacklul/monolog-telegram
+$ composer require jacklul/monolog-telegram
 ```
 
 ## Usage
 
-To use this handler you just add it like every other **Monolog** handler:
+To use this handler you just have to add it like every other **Monolog** handler:
 
 ```php
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-use jacklul\MonologTelegramHandler\TelegramHandler;
-use jacklul\MonologTelegramHandler\TelegramFormatter;
-
 require 'vendor/autoload.php';
 
+$api_token = '123456789:teMbvbETojnSG93jDhnynvH8pT28H9TIB1h';
+$chat_id = 987654321;
+
 $logger = new Logger('My project');
-$handler = new TelegramHandler('123456789:teMbvbETojnSG93jDhnynvH8pT28H9TIB1h', 987654321, Logger::ERROR);
-$handler->setFormatter(new TelegramFormatter());
+$handler = new TelegramHandler($api_token, $chat_id, Logger::ERROR);
+$handler->setFormatter(new TelegramFormatter());    // Usage of this formatter is optional but recommended if you want better message layout
 $logger->pushHandler($handler);
 
 $logger->error('Error!');
 ```
 
-By default all messages are sent in HTML format, you can force a normal text format:
+By default all messages are sent in HTML format, you can force a normal text format while keeping same message layout:
 
 ```php
 $handler->setFormatter(new TelegramFormatter(false));
