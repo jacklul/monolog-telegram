@@ -4,10 +4,12 @@ Send your logs through Telegram bot to any chat and make them look fancy!
 
 Sending all log entries in one batch is also supported!
 
-Continuous logging:
+#### Continuous logging:
+
 ![Screenshot #1](https://i.imgur.com/ISWxisv.jpg)
 
-Batch logging:
+#### Batch logging:
+
 ![Screenshot #2](https://i.imgur.com/ZeZhs60.jpg)
 
 ## Prerequisites
