@@ -64,6 +64,8 @@ class TelegramFormatter implements FormatterInterface
             foreach ($record['extra'] as $key => $val) {
                 $message .= $key . ' => ' . $this->convertToString($val);
             }
+
+            $message .= PHP_EOL . PHP_EOL;
         }
 
         if (!$this->html) {
