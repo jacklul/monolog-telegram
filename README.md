@@ -61,7 +61,6 @@ To prevent spamming the chat and hitting Telegram's API limits it is advised to 
  [DeduplicationHandler](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Handler/DeduplicationHandler.php) and/or [BufferHandler](https://github.com/Seldaek/monolog/blob/master/src/Monolog/Handler/BufferHandler.php), ideal solution for production use would be:
 
 ```php
-
 $handler = new TelegramHandler('TOKEN', 123456789);
 $handler->setFormatter(new TelegramFormatter());
 
