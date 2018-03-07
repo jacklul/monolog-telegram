@@ -23,8 +23,8 @@
   ],
   "require": {
     "php": "^5.5|^7.0",
-    "monolog/monolog": "^1.23",
-    "guzzlehttp/guzzle": "^6.3"
+    "monolog/monolog": "^1.0",
+    "guzzlehttp/guzzle": "^6.0"
   },
   "autoload": {
     "psr-4": {
