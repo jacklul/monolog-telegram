@@ -105,6 +105,10 @@ class TelegramFormatter implements FormatterInterface
             return (string) $data;
         }
 
+        if (is_object($data)) {
+            return json_encode((array) $data);
+        }
+
         return json_encode($data);
     }
 }
