@@ -86,7 +86,15 @@ class TelegramHandler extends AbstractProcessingHandler
         try {
             $this->client->post('sendMessage', ['form_params' => $data]);
         } catch (RequestException $e) {
-            // do nothing...
+            if (strpos($e->getMessage(), 'message is too long') !== false) {
+                $data['text'] = substr(strip_tags($data['text']), 0, 4096);     // Remove HTML codes and cut the message to 4096 characters
+
+                try {
+                    $this->client->post('sendMessage', ['form_params' => $data]);
+                } catch (RequestException $e) {
+                    // Do nothing...
+                }
+            }
         }
     }
 
