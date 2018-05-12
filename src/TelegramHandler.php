@@ -74,7 +74,7 @@ class TelegramHandler extends AbstractProcessingHandler
     {
         $data = [
             'chat_id' => $this->chat_id,
-            'text' => $record['formatted'] ?: $record['message'],
+            'text' => isset($record['formatted']) ? $record['formatted'] : $record['message'],
             'disable_web_page_preview' => true, // In case there is a link in the message, prevent generating preview
         ];
 
