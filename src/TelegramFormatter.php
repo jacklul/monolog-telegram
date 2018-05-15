@@ -11,28 +11,50 @@
 namespace jacklul\MonologTelegramHandler;
 
 use Monolog\Formatter\FormatterInterface;
+use Monolog\Formatter\LineFormatter;
 
 /**
- * Format a message to HTML output supported by Telegram
- *
- * To disable HTML output use: `new TelegramFormatter(false)`
+ * Formats a message to output suitable for Telegram chat
  */
 class TelegramFormatter implements FormatterInterface
 {
+    const MESSAGE_FORMAT = "<b>%level_name%</b> (%channel%) [%date%]\n\n%message%\n\n%context%%extra%";
+    const DATE_FORMAT = 'Y-m-d H:i:s e';
+
+    /**
+     * @var bool
+     */
     private $html;
 
     /**
-     * TelegramFormatter constructor.
-     *
-     * @param bool $html
+     * @var string
      */
-    public function __construct($html = true)
-    {
-        if (!is_bool($html)) {
-            throw new \InvalidArgumentException('Argument \'html\' must be a boolean!');
-        }
+    private $format;
 
+    /**
+     * @var string
+     */
+    private $dateFormat;
+
+    /**
+     * @var string
+     */
+    private $separator;
+
+    /**
+     * Formatter constructor
+     *
+     * @param bool   $html       Format as HTML or not
+     * @param string $format     The format of the message
+     * @param string $dateFormat The format of the timestamp: one supported by DateTime::format
+     * @param string $separator  Record separator used when sending batch of logs in one message
+     */
+    public function __construct($html = true, $format = null, $dateFormat = null, $separator = '-')
+    {
         $this->html = $html;
+        $this->format = $format ?: self::MESSAGE_FORMAT;
+        $this->dateFormat = $dateFormat ?: self::DATE_FORMAT;
+        $this->separator = $separator;
     }
 
     /**
@@ -40,35 +62,34 @@ class TelegramFormatter implements FormatterInterface
      */
     public function format(array $record)
     {
-        $record['message'] = preg_replace('/<([^<]+)>/', '&lt;$1&gt;', $record['message']); // Replace <> in existing HTML tags with their HTML codes
-        $record['message'] = preg_replace('/^(exception)\s/', 'Exception ', $record['message']); // Capitalize first letter of 'exception'
-        $record['message'] = preg_replace('/^Stack trace:\r?\n((?:^\#.*\r?\n?)*{main})$/m', PHP_EOL . '<b>Stack trace:</b>' . PHP_EOL . '<code>$1</code>', $record['message']); // Put the stack trace inside <code></code> tags
+        $message = $this->format;
+        $lineFormatter = new LineFormatter();
 
-        $message = '<b>' . $record['level_name'] . ' [</b>' . $record['channel'] . '<b>]</b> at ' . $record['datetime']->format("Y-m-d H:i:s e") . PHP_EOL . PHP_EOL;
-        $message .= $record['message'] . PHP_EOL;
-        $message .= PHP_EOL;
+        $record['message'] = preg_replace('/<([^<]+)>/', '&lt;$1&gt;', $record['message']); // Replace '<' and '>' with their special codes
+        $record['message'] = preg_replace('/^Stack trace:\n((^#\d.*\n?)*)$/m', "\n<b>Stack trace:</b>\n<code>$1</code>", $record['message']); // Put the stack trace inside <code></code> tags
+        $message = str_replace('%message%', $record['message'], $message);
 
         if ($record['context']) {
-            $message .= "<b>Context:</b>" . PHP_EOL;
-
-            foreach ($record['context'] as $key => $val) {
-                $message .= $key . ' => ' . $this->convertToString($val);
-            }
-
-            $message .= PHP_EOL . PHP_EOL;
+            $context = "<b>Context:</b> ";
+            $context .= $lineFormatter->stringify($record['context']);
+            $message = str_replace('%context%', $context . "\n", $message);
+        } else {
+            $message = str_replace('%context%', '', $message);
         }
 
         if ($record['extra']) {
-            $message .= "<b>Extra:</b>" . PHP_EOL;
-
-            foreach ($record['extra'] as $key => $val) {
-                $message .= $key . ' => ' . $this->convertToString($val);
-            }
-
-            $message .= PHP_EOL . PHP_EOL;
+            $extra = "<b>Extra:</b> ";
+            $extra .= $lineFormatter->stringify($record['extra']);
+            $message = str_replace('%extra%', $extra . "\n", $message);
+        } else {
+            $message = str_replace('%extra%', '', $message);
         }
 
-        if (!$this->html) {
+        $message = str_replace('%level_name%', $record['level_name'], $message);
+        $message = str_replace('%channel%', $record['channel'], $message);
+        $message = str_replace('%date%', $record['datetime']->format($this->dateFormat), $message);
+
+        if ($this->html === false) {
             $message = strip_tags($message);
         }
 
@@ -82,33 +103,13 @@ class TelegramFormatter implements FormatterInterface
     {
         $message = '';
         foreach ($records as $record) {
+            if (!empty($message)) {
+                $message .= str_repeat($this->separator, 15) . "\n";
+            }
+
             $message .= $this->format($record);
         }
 
         return $message;
-    }
-
-    /**
-     * Convert value to string
-     *
-     * @param $data
-     *
-     * @return mixed|string
-     */
-    private function convertToString($data)
-    {
-        if (null === $data || is_bool($data)) {
-            return var_export($data, true);
-        }
-
-        if (is_scalar($data)) {
-            return (string) $data;
-        }
-
-        if (is_object($data)) {
-            return json_encode((array) $data);
-        }
-
-        return json_encode($data);
     }
 }

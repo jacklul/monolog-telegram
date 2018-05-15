@@ -10,8 +10,6 @@
 
 namespace jacklul\MonologTelegramHandler;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
 
@@ -25,44 +23,50 @@ use Monolog\Logger;
  */
 class TelegramHandler extends AbstractProcessingHandler
 {
-    /**
-     * Guzzle HTTP client object
-     *
-     * @var Client
-     */
-    private $client;
+    const BASE_URI = 'https://api.telegram.org/bot';
 
     /**
-     * Target chat ID
+     * Bot API token
+     *
+     * @var string
+     */
+    private $token;
+
+    /**
+     * Chat ID
      *
      * @var int
      */
-    private $chat_id;
+    private $chatId;
 
     /**
-     * @param string     $token          Telegram bot API token
-     * @param int        $chat_id        Chat ID to which logs will be sent
-     * @param int        $level          The minimum logging level at which this handler will be triggered
-     * @param array|null $client_options Custom options for Guzzle client
-     * @param bool       $bubble         Whether the messages that are handled can bubble up the stack or not
+     * Use cURL extension?
+     *
+     * @var bool
      */
-    public function __construct($token, $chat_id, $level = Logger::DEBUG, array $client_options = null, $bubble = true)
+    private $useCurl;
+
+    /**
+     * Timeout for requests
+     *
+     * @var int
+     */
+    private $timeout;
+
+    /**
+     * @param string $token   Telegram bot API token
+     * @param int    $chatId  Chat ID to which logs will be sent
+     * @param int    $level   The minimum logging level at which this handler will be triggered
+     * @param bool   $bubble  Whether the messages that are handled can bubble up the stack or not
+     * @param bool   $useCurl Whether to use cURL extension when available or not
+     * @param int    $timeout Maximum time to wait for requests to finish
+     */
+    public function __construct($token, $chatId, $level = Logger::DEBUG, $bubble = true, $useCurl = true, $timeout = 10)
     {
-        if (!is_string($token)) {
-            throw new \InvalidArgumentException('Argument \'token\' must be a string!');
-        }
-
-        if (!is_int($chat_id)) {
-            throw new \InvalidArgumentException('Argument \'chat_id\' must be an integer!');
-        }
-
-        $options = ['base_uri' => 'https://api.telegram.org/bot' . $token . '/'];
-        if ($client_options !== null && is_array($client_options)) {
-            $options = array_merge($options, $client_options);
-        }
-
-        $this->chat_id = $chat_id;
-        $this->client = new Client($options);
+        $this->token = $token;
+        $this->chatId = $chatId;
+        $this->useCurl = $useCurl;
+        $this->timeout = $timeout;
 
         parent::__construct($level, $bubble);
     }
@@ -72,30 +76,19 @@ class TelegramHandler extends AbstractProcessingHandler
      */
     protected function write(array $record)
     {
-        $data = [
-            'chat_id' => $this->chat_id,
-            'text' => isset($record['formatted']) ? $record['formatted'] : $record['message'],
-            'disable_web_page_preview' => true, // In case there is a link in the message, prevent generating preview
-        ];
+        $message = isset($record['formatted']) ? $record['formatted'] : $record['message'];
 
-        // Set parse mode when HTML code is detected
-        if (preg_match("/<[^<]+>/", $data['text']) !== false) {
-            $data['parse_mode'] = 'HTML';
+        // When message is too long we have to remove HTML tags so that the message can be properly split
+        if (mb_strlen($message, 'UTF-8') > 4096) {
+            $message = strip_tags($message);
         }
 
-        try {
-            $this->client->post('sendMessage', ['form_params' => $data]);
-        } catch (RequestException $e) {
-            if (strpos($e->getMessage(), 'message is too long') !== false) {
-                $data['text'] = substr(strip_tags($data['text']), 0, 4096);     // Remove HTML codes and cut the message to 4096 characters
-
-                try {
-                    $this->client->post('sendMessage', ['form_params' => $data]);
-                } catch (RequestException $e) {
-                    // Do nothing...
-                }
-            }
-        }
+        // Split the message and send it in parts when needed
+        do {
+            $message_part = mb_substr($message, 0, 4096);
+            $this->send($message_part);
+            $message = mb_substr($message, 4096);
+        } while (mb_strlen($message, 'UTF-8') > 0);
     }
 
     /**
@@ -103,17 +96,75 @@ class TelegramHandler extends AbstractProcessingHandler
      */
     public function handleBatch(array $records)
     {
-        $messages = array();
-
+        $messages = [];
         foreach ($records as $record) {
             if ($record['level'] < $this->level) {
                 continue;
             }
+
             $messages[] = $this->processRecord($record);
         }
 
         if (!empty($messages)) {
             $this->write(['formatted' => $this->getFormatter()->formatBatch($messages)]);
         }
+    }
+
+    /**
+     * Send sendMessage request to Telegram Bot API
+     *
+     * @param string $message The message to send
+     *
+     * @return bool
+     */
+    private function send($message)
+    {
+        $data = [
+            'chat_id'                  => $this->chatId,
+            'text'                     => $message,
+            'disable_web_page_preview' => true // Just in case there is a link in the message, prevent generating preview
+        ];
+
+        // Set special parse mode when HTML code is detected
+        if (preg_match("/<[^<]+>/", $data['text']) !== false) {
+            $data['parse_mode'] = 'HTML';
+        }
+
+        $url = self::BASE_URI . $this->token . '/sendMessage';
+        try {
+            if ($this->useCurl === true && extension_loaded('curl')) {
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+                curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+                $result = curl_exec($ch);
+            } else {
+                $opts = [
+                    'http' => [
+                        'method'  => 'POST',
+                        'header'  => 'Content-type: application/x-www-form-urlencoded',
+                        'content' => http_build_query($data),
+                        'timeout' => $this->timeout,
+                    ],
+                    'ssl'  => [
+                        'verify_peer' => false,
+                    ],
+                ];
+                $result = file_get_contents($url, false, stream_context_create($opts));
+            }
+
+            $result = json_decode($result, true);
+            if (isset($result['ok']) && $result['ok'] === true) {
+                return true;
+            } elseif (isset($result['description'])) {
+                trigger_error('TelegramHandler: API error: ' . $result['description'], E_USER_DEPRECATED);
+            }
+        } catch (\Exception $e) {
+            trigger_error('TelegramHandler: Request exception: ' . $e->getMessage(), E_USER_DEPRECATED);
+        }
+
+        return false;
     }
 }
