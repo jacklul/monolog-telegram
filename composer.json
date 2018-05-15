@@ -1,7 +1,7 @@
 {
   "name": "jacklul/monolog-telegram",
   "type": "library",
-  "description": "Monolog handler that sends logs through Telegram bot to any chat in HTML format.",
+  "description": "Monolog handler that sends logs through Telegram bot to any chat in HTML format",
   "keywords": [
     "monolog",
     "telegram",
