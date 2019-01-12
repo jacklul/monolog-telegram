@@ -3,7 +3,7 @@
 Send your logs through Telegram bot to any chat and make them look fancy!
 
 #### Features:
-- [Continous logging](https://raw.githubusercontent.com/jacklul/monolog-telegram/master/screenshot1.jpg) and [batch logging](https://raw.githubusercontent.com/jacklul/monolog-telegram/master/screenshot2.jpg) support
+- [Continous logging](https://i.imgur.com/8EnxO90.jpg) and [batch logging](https://i.imgur.com/4C9Y6cT.jpg) support
 - Standard stack traces wrapped in `<code></code>` tags
 - Automatic splitting of the message when it exceeds maximum limit
 
