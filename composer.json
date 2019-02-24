@@ -24,7 +24,6 @@
   ],
   "require": {
     "php": "^5.5|^7.0",
-    "ext-curl": "*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "monolog/monolog": "^1.0"

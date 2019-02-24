@@ -72,8 +72,8 @@ class TelegramHandler extends AbstractProcessingHandler
         $this->token = $token;
         $this->chatId = $chatId;
         $this->useCurl = $useCurl;
-        $this->verifyPeer = $verifyPeer;
         $this->timeout = $timeout;
+        $this->verifyPeer = $verifyPeer;
 
         parent::__construct($level, $bubble);
     }
