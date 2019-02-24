@@ -70,7 +70,7 @@ class TelegramFormatter implements FormatterInterface
         $message = str_replace('%message%', $record['message'], $message);
 
         if ($record['context']) {
-            $context = "<b>Context:</b> ";
+            $context = '<b>Context:</b> ';
             $context .= $lineFormatter->stringify($record['context']);
             $message = str_replace('%context%', $context . "\n", $message);
         } else {
@@ -78,16 +78,14 @@ class TelegramFormatter implements FormatterInterface
         }
 
         if ($record['extra']) {
-            $extra = "<b>Extra:</b> ";
+            $extra = '<b>Extra:</b> ';
             $extra .= $lineFormatter->stringify($record['extra']);
             $message = str_replace('%extra%', $extra . "\n", $message);
         } else {
             $message = str_replace('%extra%', '', $message);
         }
 
-        $message = str_replace('%level_name%', $record['level_name'], $message);
-        $message = str_replace('%channel%', $record['channel'], $message);
-        $message = str_replace('%date%', $record['datetime']->format($this->dateFormat), $message);
+        $message = str_replace(['%level_name%', '%channel%', '%date%'], [$record['level_name'], $record['channel'], $record['datetime']->format($this->dateFormat)], $message);
 
         if ($this->html === false) {
             $message = strip_tags($message);

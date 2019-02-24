@@ -95,7 +95,7 @@ class TelegramHandler extends AbstractProcessingHandler
             $message_part = mb_substr($message, 0, 4096);
             $this->send($message_part);
             $message = mb_substr($message, 4096);
-        } while (mb_strlen($message, 'UTF-8') > 0);
+        } while ($message !== '');
     }
 
     /**
@@ -133,7 +133,7 @@ class TelegramHandler extends AbstractProcessingHandler
         ];
 
         // Set special parse mode when HTML code is detected
-        if (preg_match("/<[^<]+>/", $data['text']) !== false) {
+        if (preg_match('/<[^<]+>/', $data['text']) !== false) {
             $data['parse_mode'] = 'HTML';
         }
 
@@ -165,11 +165,13 @@ class TelegramHandler extends AbstractProcessingHandler
             $result = json_decode($result, true);
             if (isset($result['ok']) && $result['ok'] === true) {
                 return true;
-            } elseif (isset($result['description'])) {
-                trigger_error('TelegramHandler: API error: ' . $result['description'], E_USER_DEPRECATED);
+            }
+
+            if (isset($result['description'])) {
+                trigger_error('TelegramHandler: API error: ' . $result['description'], E_USER_ERROR);
             }
         } catch (\Exception $e) {
-            trigger_error('TelegramHandler: Request exception: ' . $e->getMessage(), E_USER_DEPRECATED);
+            trigger_error('TelegramHandler: Request exception: ' . $e->getMessage(), E_USER_ERROR);
         }
 
         return false;
