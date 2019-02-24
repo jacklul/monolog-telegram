@@ -54,18 +54,25 @@ class TelegramHandler extends AbstractProcessingHandler
     private $timeout;
 
     /**
-     * @param string $token   Telegram bot API token
-     * @param int    $chatId  Chat ID to which logs will be sent
-     * @param int    $level   The minimum logging level at which this handler will be triggered
-     * @param bool   $bubble  Whether the messages that are handled can bubble up the stack or not
-     * @param bool   $useCurl Whether to use cURL extension when available or not
-     * @param int    $timeout Maximum time to wait for requests to finish
+     * @var bool
      */
-    public function __construct($token, $chatId, $level = Logger::DEBUG, $bubble = true, $useCurl = true, $timeout = 10)
+    private $verifyPeer;
+
+    /**
+     * @param string $token      Telegram bot API token
+     * @param int    $chatId     Chat ID to which logs will be sent
+     * @param int    $level      The minimum logging level at which this handler will be triggered
+     * @param bool   $bubble     Whether the messages that are handled can bubble up the stack or not
+     * @param bool   $useCurl    Whether to use cURL extension when available or not
+     * @param int    $timeout    Maximum time to wait for requests to finish
+     * @param bool   $verifyPeer Whether to use SSL cert verification or not
+     */
+    public function __construct($token, $chatId, $level = Logger::DEBUG, $bubble = true, $useCurl = true, $timeout = 10, $verifyPeer = true)
     {
         $this->token = $token;
         $this->chatId = $chatId;
         $this->useCurl = $useCurl;
+        $this->verifyPeer = $verifyPeer;
         $this->timeout = $timeout;
 
         parent::__construct($level, $bubble);
@@ -136,7 +143,7 @@ class TelegramHandler extends AbstractProcessingHandler
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->verifyPeer);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
                 curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
                 $result = curl_exec($ch);
@@ -149,7 +156,7 @@ class TelegramHandler extends AbstractProcessingHandler
                         'timeout' => $this->timeout,
                     ],
                     'ssl'  => [
-                        'verify_peer' => false,
+                        'verify_peer' => $this->verifyPeer,
                     ],
                 ];
                 $result = file_get_contents($url, false, stream_context_create($opts));
