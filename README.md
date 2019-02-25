@@ -1,4 +1,4 @@
-# Monolog Telegram Handler
+# Monolog Telegram Handler [![Build Status](https://travis-ci.org/jacklul/monolog-telegram.svg?branch=master)](https://travis-ci.org/jacklul/monolog-telegram)
 
 Send your logs through Telegram bot to any chat and make them look fancy!
 
@@ -38,11 +38,13 @@ require 'vendor/autoload.php';
 $api_token = '123456789:teMbvbETojnSG93jDhnynvH8pT28H9TIB1h';    // Bot API token
 $chat_id = 987654321;    // Target Chat ID
 $level = Logger::ERROR;     // Log level
+$bubble = true;     // Bubble up the stack or not
 $use_curl = true;    // Use cURL or not? (default: use when available)
 $timeout = 10;   // Timeout for API requests
+$verify_peer = true;   // Verify SSL certificate or not? (development/debugging)
 
 $logger = new Logger('My project');
-$handler = new TelegramHandler($api_token, $chat_id, $level, $use_curl, $timeout);
+$handler = new TelegramHandler($api_token, $chat_id, $level, $bubble, $use_curl, $timeout, $verify_peer);
 $handler->setFormatter(new TelegramFormatter());    // Usage of this formatter is optional but recommended if you want better message layout
 $logger->pushHandler($handler);
 

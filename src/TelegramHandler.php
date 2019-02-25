@@ -54,6 +54,8 @@ class TelegramHandler extends AbstractProcessingHandler
     private $timeout;
 
     /**
+     * Verify SSL certificate?
+     *
      * @var bool
      */
     private $verifyPeer;
@@ -65,7 +67,7 @@ class TelegramHandler extends AbstractProcessingHandler
      * @param bool   $bubble     Whether the messages that are handled can bubble up the stack or not
      * @param bool   $useCurl    Whether to use cURL extension when available or not
      * @param int    $timeout    Maximum time to wait for requests to finish
-     * @param bool   $verifyPeer Whether to use SSL cert verification or not
+     * @param bool   $verifyPeer Whether to use SSL certificate verification or not
      */
     public function __construct($token, $chatId, $level = Logger::DEBUG, $bubble = true, $useCurl = true, $timeout = 10, $verifyPeer = true)
     {
@@ -126,52 +128,62 @@ class TelegramHandler extends AbstractProcessingHandler
      */
     private function send($message)
     {
+        $url = self::BASE_URI . $this->token . '/sendMessage';
         $data = [
             'chat_id'                  => $this->chatId,
             'text'                     => $message,
-            'disable_web_page_preview' => true // Just in case there is a link in the message, prevent generating preview
+            'disable_web_page_preview' => true // Just in case there is a link in the message
         ];
 
-        // Set special parse mode when HTML code is detected
+        // Set HTML parse mode when HTML code is detected
         if (preg_match('/<[^<]+>/', $data['text']) !== false) {
             $data['parse_mode'] = 'HTML';
         }
 
-        $url = self::BASE_URI . $this->token . '/sendMessage';
-        try {
-            if ($this->useCurl === true && extension_loaded('curl')) {
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->verifyPeer);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-                curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-                $result = curl_exec($ch);
-            } else {
-                $opts = [
-                    'http' => [
-                        'method'  => 'POST',
-                        'header'  => 'Content-type: application/x-www-form-urlencoded',
-                        'content' => http_build_query($data),
-                        'timeout' => $this->timeout,
-                    ],
-                    'ssl'  => [
-                        'verify_peer' => $this->verifyPeer,
-                    ],
-                ];
-                $result = file_get_contents($url, false, stream_context_create($opts));
-            }
+        if ($this->useCurl === true && extension_loaded('curl')) {
+            $ch = curl_init();
 
-            $result = json_decode($result, true);
-            if (isset($result['ok']) && $result['ok'] === true) {
-                return true;
-            }
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->verifyPeer);
+            curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 
-            if (isset($result['description'])) {
-                trigger_error('TelegramHandler: API error: ' . $result['description'], E_USER_ERROR);
+            $result = curl_exec($ch);
+            if (!$result) {
+                throw new \RuntimeException('Request to Telegram API failed: ' . curl_error($ch));
             }
-        } catch (\Exception $e) {
-            trigger_error('TelegramHandler: Request exception: ' . $e->getMessage(), E_USER_ERROR);
+        } else {
+            $opts = [
+                'http' => [
+                    'method'  => 'POST',
+                    'header'  => 'Content-type: application/x-www-form-urlencoded',
+                    'content' => http_build_query($data),
+                    'timeout' => $this->timeout,
+                ],
+                'ssl'  => [
+                    'verify_peer' => $this->verifyPeer,
+                ],
+            ];
+
+            $result = @file_get_contents($url, false, stream_context_create($opts));
+            if (!$result) {
+                $error = error_get_last();
+                if (isset($error['message'])) {
+                    throw new \RuntimeException('Request to Telegram API failed: ' . $error['message']);
+                }
+
+                throw new \RuntimeException('Request to Telegram API failed');
+            }
+        }
+
+        $result = json_decode($result, true);
+        if (isset($result['ok']) && $result['ok'] === true) {
+            return true;
+        }
+
+        if (isset($result['description'])) {
+            throw new \RuntimeException('Telegram API error: ' . $result['description']);
         }
 
         return false;
