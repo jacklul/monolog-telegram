@@ -36,20 +36,28 @@ class TelegramHandlerTest extends TestCase
             $handler = new TelegramHandler($this->token, $this->chat_id, Logger::DEBUG, true, true, 5, true);
             $logger->pushHandler($handler);
 
-            $result = $logger->debug('PHPUnit' . str_repeat('-', 4096));
+            $result = $logger->debug('PHPUnit - test with valid arguments and large message: ' . str_repeat('-', 4096));
             $this->assertTrue($result);
         }
 
+        /** @noinspection SuspiciousAssignmentsInspection */
         $logger = new Logger('PHPUnit');
-        $handler = new TelegramHandler($this->token, $this->chat_id, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6);
+        $handler = new TelegramHandler($this->token, $this->chat_id, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6); // PHP 5.5 has trouble accessing SSL-protected URLs so the verification must be force-disabled
         $logger->pushHandler($handler);
 
-        $result = $logger->debug('PHPUnit' . str_repeat('-', 4096));
+        if (isset($result) && $result) {
+            $result = $logger->debug('PHPUnit - test with valid arguments');
+        } else {
+            $result = $logger->debug('PHPUnit - test with valid arguments and large message: ' . str_repeat('-', 4096));
+        }
+
         $this->assertTrue($result);
     }
 
     public function testWithInvalidToken()
     {
+        sleep(1);
+
         if (method_exists($this, 'expectException') && method_exists($this, 'expectExceptionMessage')) {
             $this->expectException(\RuntimeException::class);
             $this->expectExceptionMessage('Not Found');
@@ -65,6 +73,7 @@ class TelegramHandlerTest extends TestCase
             $logger->debug('PHPUnit');
         }
 
+        /** @noinspection SuspiciousAssignmentsInspection */
         $logger = new Logger('PHPUnit');
         $handler = new TelegramHandler('token', $this->chat_id, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6);
         $logger->pushHandler($handler);
@@ -74,6 +83,8 @@ class TelegramHandlerTest extends TestCase
 
     public function testWithInvalidChatId()
     {
+        sleep(1);
+
         if (empty($this->token)) {
             $this->markTestSkipped('Token was not provided');
         }
@@ -93,6 +104,7 @@ class TelegramHandlerTest extends TestCase
             $logger->debug('PHPUnit');
         }
 
+        /** @noinspection SuspiciousAssignmentsInspection */
         $logger = new Logger('PHPUnit');
         $handler = new TelegramHandler($this->token, 123, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6);
         $logger->pushHandler($handler);
