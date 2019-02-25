@@ -31,17 +31,17 @@ class TelegramHandlerTest extends TestCase
             $this->markTestSkipped('Either token or chat id was not provided');
         }
 
-        $logger = new Logger('PHPUnit');
-
         if (extension_loaded('curl')) {
-            $handler = new TelegramHandler($this->token, $this->chat_id, Logger::DEBUG, true, ['curl' => true]);
+            $logger = new Logger('PHPUnit');
+            $handler = new TelegramHandler($this->token, $this->chat_id, Logger::DEBUG, true, true, 5, true);
             $logger->pushHandler($handler);
 
             $result = $logger->debug('PHPUnit' . str_repeat('-', 4096));
             $this->assertTrue($result);
         }
 
-        $handler = new TelegramHandler($this->token, $this->chat_id, Logger::DEBUG, true, ['curl' => false]);
+        $logger = new Logger('PHPUnit');
+        $handler = new TelegramHandler($this->token, $this->chat_id, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6);
         $logger->pushHandler($handler);
 
         $result = $logger->debug('PHPUnit' . str_repeat('-', 4096));
@@ -50,8 +50,6 @@ class TelegramHandlerTest extends TestCase
 
     public function testWithInvalidToken()
     {
-        $logger = new Logger('PHPUnit');
-
         if (method_exists($this, 'expectException') && method_exists($this, 'expectExceptionMessage')) {
             $this->expectException(\RuntimeException::class);
             $this->expectExceptionMessage('Not Found');
@@ -60,13 +58,15 @@ class TelegramHandlerTest extends TestCase
         }
 
         if (extension_loaded('curl')) {
-            $handler = new TelegramHandler('invalid', 123, Logger::DEBUG, true, ['curl' => true]);
+            $logger = new Logger('PHPUnit');
+            $handler = new TelegramHandler('token', $this->chat_id, Logger::DEBUG, true, true, 5, true);
             $logger->pushHandler($handler);
 
             $logger->debug('PHPUnit');
         }
 
-        $handler = new TelegramHandler('invalid', 123, Logger::DEBUG, true, ['curl' => false]);
+        $logger = new Logger('PHPUnit');
+        $handler = new TelegramHandler('token', $this->chat_id, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6);
         $logger->pushHandler($handler);
 
         $logger->debug('PHPUnit');
@@ -78,8 +78,6 @@ class TelegramHandlerTest extends TestCase
             $this->markTestSkipped('Token was not provided');
         }
 
-        $logger = new Logger('PHPUnit');
-
         if (method_exists($this, 'expectException') && method_exists($this, 'expectExceptionMessage')) {
             $this->expectException(\RuntimeException::class);
             $this->expectExceptionMessage('Bad Request');
@@ -88,13 +86,15 @@ class TelegramHandlerTest extends TestCase
         }
 
         if (extension_loaded('curl')) {
-            $handler = new TelegramHandler($this->token, 123, Logger::DEBUG, true, ['curl' => true]);
+            $logger = new Logger('PHPUnit');
+            $handler = new TelegramHandler($this->token, 123, Logger::DEBUG, true, true, 5, true);
             $logger->pushHandler($handler);
 
             $logger->debug('PHPUnit');
         }
 
-        $handler = new TelegramHandler($this->token, 123, Logger::DEBUG, true, ['curl' => false]);
+        $logger = new Logger('PHPUnit');
+        $handler = new TelegramHandler($this->token, 123, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6);
         $logger->pushHandler($handler);
 
         $logger->debug('PHPUnit');

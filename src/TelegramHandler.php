@@ -162,7 +162,8 @@ class TelegramHandler extends AbstractProcessingHandler
                     'timeout' => $this->timeout,
                 ],
                 'ssl'  => [
-                    'verify_peer' => $this->verifyPeer,
+                    'verify_peer'      => $this->verifyPeer,
+                    'verify_peer_name' => $this->verifyPeer,
                 ],
             ];
 
