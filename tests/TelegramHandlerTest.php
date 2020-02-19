@@ -25,7 +25,7 @@ class TelegramHandlerTest extends TestCase
         parent::__construct($name, $data, $dataName);
     }
 
-    public function testWithValidArguments()
+    /*public function testWithValidArguments()
     {
         if (empty($this->token) || empty($this->chat_id)) {
             $this->markTestSkipped('Either token or chat id was not provided');
@@ -40,7 +40,6 @@ class TelegramHandlerTest extends TestCase
             $this->assertTrue($result);
         }
 
-        /** @noinspection SuspiciousAssignmentsInspection */
         $logger = new Logger('PHPUnit');
         $handler = new TelegramHandler($this->token, $this->chat_id, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6); // PHP 5.5 has trouble accessing SSL-protected URLs so the verification must be force-disabled
         $logger->pushHandler($handler);
@@ -52,7 +51,7 @@ class TelegramHandlerTest extends TestCase
         }
 
         $this->assertTrue($result);
-    }
+    }*/
 
     public function testWithInvalidToken()
     {
@@ -73,7 +72,6 @@ class TelegramHandlerTest extends TestCase
             $logger->debug('PHPUnit');
         }
 
-        /** @noinspection SuspiciousAssignmentsInspection */
         $logger = new Logger('PHPUnit');
         $handler = new TelegramHandler('token', $this->chat_id, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6);
         $logger->pushHandler($handler);
@@ -104,7 +102,6 @@ class TelegramHandlerTest extends TestCase
             $logger->debug('PHPUnit');
         }
 
-        /** @noinspection SuspiciousAssignmentsInspection */
         $logger = new Logger('PHPUnit');
         $handler = new TelegramHandler($this->token, 123, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6);
         $logger->pushHandler($handler);
