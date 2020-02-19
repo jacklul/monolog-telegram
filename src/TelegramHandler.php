@@ -83,9 +83,9 @@ class TelegramHandler extends AbstractProcessingHandler
     /**
      * {@inheritdoc}
      */
-    protected function write(array $record)
+    protected function write(array $record): void
     {
-        $message = isset($record['formatted']) ? $record['formatted'] : $record['message'];
+        $message = $record['formatted'] ?? $record['message'];
 
         // When message is too long we have to remove HTML tags so that the message can be properly split
         if (mb_strlen($message, 'UTF-8') > 4096) {
@@ -103,7 +103,7 @@ class TelegramHandler extends AbstractProcessingHandler
     /**
      * {@inheritdoc}
      */
-    public function handleBatch(array $records)
+    public function handleBatch(array $records): void
     {
         $messages = [];
         foreach ($records as $record) {

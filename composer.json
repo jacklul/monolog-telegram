@@ -23,15 +23,15 @@
     }
   ],
   "require": {
-    "php": "^5.5|^7.0",
+    "php": "^7.2",
     "ext-json": "*",
     "ext-mbstring": "*",
-    "monolog/monolog": "^1.0"
+    "monolog/monolog": "^2.0"
   },
   "require-dev": {
     "ext-curl": "*",
     "squizlabs/php_codesniffer": "^3.2",
-    "phpunit/phpunit": "^4.0|^6.0|^8.0",
+    "phpunit/phpunit": "^8.0",
     "vlucas/phpdotenv": "^3.3"
   },
   "suggest": {
