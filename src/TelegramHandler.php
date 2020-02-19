@@ -23,7 +23,7 @@ use Monolog\Logger;
  */
 class TelegramHandler extends AbstractProcessingHandler
 {
-    const BASE_URI = 'https://api.telegram.org/bot';
+    const BASE_URI = 'https://api.telegram.org';
 
     /**
      * Bot API token
@@ -128,7 +128,7 @@ class TelegramHandler extends AbstractProcessingHandler
      */
     private function send($message)
     {
-        $url = self::BASE_URI . $this->token . '/sendMessage';
+        $url = self::BASE_URI . '/bot' . $this->token . '/sendMessage';
         $data = [
             'chat_id'                  => $this->chatId,
             'text'                     => $message,
