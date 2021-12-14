@@ -35,16 +35,17 @@ To use this handler you just have to add it like every other **Monolog** handler
 ```php
 require 'vendor/autoload.php';
 
-$api_token = '123456789:teMbvbETojnSG93jDhnynvH8pT28H9TIB1h';    // Bot API token
-$chat_id = 987654321;    // Target Chat ID
-$level = Logger::ERROR;     // Log level
-$bubble = true;     // Bubble up the stack or not
-$use_curl = true;    // Use cURL or not? (default: use when available)
-$timeout = 10;   // Timeout for API requests
-$verify_peer = true;   // Verify SSL certificate or not? (development/debugging)
-
 $logger = new Logger('My project');
-$handler = new TelegramHandler($api_token, $chat_id, $level, $bubble, $use_curl, $timeout, $verify_peer);
+$handler = new TelegramHandler(
+    '123456789:teMbvbETojnSG93jDhnynvH8pT28H9TIB1h',  // Bot API token
+    987654321,  // Target Chat ID
+    Logger::ERROR,  // Log level, default: DEBUG
+    true,  // Bubble up the stack or not, default: true
+    true,  // Use cURL or not? default: true = use when available
+    10,    // Timeout for API requests, default: 10
+    true   // Verify SSL certificate or not? default: true, false only useful for development - avoid in production
+);
+
 $handler->setFormatter(new TelegramFormatter());    // Usage of this formatter is optional but recommended if you want better message layout
 $logger->pushHandler($handler);
 
