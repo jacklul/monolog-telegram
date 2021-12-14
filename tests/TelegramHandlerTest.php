@@ -3,9 +3,9 @@
 namespace jacklul\MonologTelegramHandler\Tests;
 
 use Dotenv\Dotenv;
-use jacklul\MonologTelegramHandler\TelegramHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
+use jacklul\MonologTelegramHandler\TelegramHandler;
 
 class TelegramHandlerTest extends TestCase
 {
@@ -25,7 +25,7 @@ class TelegramHandlerTest extends TestCase
         parent::__construct($name, $data, $dataName);
     }
 
-    /*public function testWithValidArguments()
+    public function testWithValidArguments()
     {
         if (empty($this->token) || empty($this->chat_id)) {
             $this->markTestSkipped('Either token or chat id was not provided');
@@ -36,22 +36,31 @@ class TelegramHandlerTest extends TestCase
             $handler = new TelegramHandler($this->token, $this->chat_id, Logger::DEBUG, true, true, 5, true);
             $logger->pushHandler($handler);
 
-            $result = $logger->debug('PHPUnit - test with valid arguments and large message: ' . str_repeat('-', 4096));
-            $this->assertTrue($result);
+            try {
+                $logger->debug('PHPUnit - test with valid arguments and large message: ' . str_repeat('-', 4096));
+            } catch (\Exception $e) {
+                $this->fail('Exception was thrown: ' . $e->getMessage());
+            }
+
+            $this->assertTrue(true);
         }
 
         $logger = new Logger('PHPUnit');
         $handler = new TelegramHandler($this->token, $this->chat_id, Logger::DEBUG, true, false, 5, (float)PHP_VERSION >= 5.6); // PHP 5.5 has trouble accessing SSL-protected URLs so the verification must be force-disabled
         $logger->pushHandler($handler);
 
-        if (isset($result) && $result) {
-            $result = $logger->debug('PHPUnit - test with valid arguments');
-        } else {
-            $result = $logger->debug('PHPUnit - test with valid arguments and large message: ' . str_repeat('-', 4096));
+        try {
+            if (isset($result) && $result) {
+                $logger->debug('PHPUnit - test with valid arguments');
+            } else {
+                $logger->debug('PHPUnit - test with valid arguments and large message: ' . str_repeat('-', 4096));
+            }
+        } catch (\Exception $e) {
+            $this->fail('Exception was thrown: ' . $e->getMessage());
         }
 
-        $this->assertTrue($result);
-    }*/
+        $this->assertTrue(true);
+    }
 
     public function testWithInvalidToken()
     {
