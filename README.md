@@ -1,4 +1,4 @@
-# Monolog Telegram Handler [![Build Status](https://travis-ci.org/jacklul/monolog-telegram.svg?branch=master)](https://travis-ci.org/jacklul/monolog-telegram)
+# Monolog Telegram Handler
 
 Send your logs through Telegram bot to any chat and make them look fancy!
 
