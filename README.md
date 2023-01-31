@@ -82,6 +82,16 @@ $separator = '-';       // Seperation character for batch processing - when empt
 $handler->setFormatter(new TelegramFormatter($html, $format, $date_format, $separator));
 ```
 
+## Running tests
+
+Create `.env` file:
+```
+TELEGRAM_TOKEN=BOT_TOKEN
+TELEGRAM_CHAT_ID=CHAT_ID_THE_BOT_WILL_SPAM;
+```
+
+Run `composer check-code` and `composer test`.
+
 ## License
 
 See [LICENSE](LICENSE).

@@ -11,7 +11,8 @@
 namespace jacklul\MonologTelegramHandler;
 
 use Monolog\Handler\AbstractProcessingHandler;
-use Monolog\Logger;
+use Monolog\Level;
+use Monolog\LogRecord;
 
 /**
  * Sends logs to chats through Telegram bot
@@ -30,46 +31,46 @@ class TelegramHandler extends AbstractProcessingHandler
      *
      * @var string
      */
-    private $token;
+    private string $token;
 
     /**
      * Chat ID
      *
      * @var int
      */
-    private $chatId;
+    private int $chatId;
 
     /**
      * Use cURL extension?
      *
      * @var bool
      */
-    private $useCurl;
+    private bool $useCurl;
 
     /**
      * Timeout for requests
      *
      * @var int
      */
-    private $timeout;
+    private int $timeout;
 
     /**
      * Verify SSL certificate?
      *
      * @var bool
      */
-    private $verifyPeer;
+    private bool $verifyPeer;
 
     /**
      * @param string $token      Telegram bot API token
      * @param int    $chatId     Chat ID to which logs will be sent
-     * @param int    $level      The minimum logging level at which this handler will be triggered
+     * @param Level  $level      The minimum logging level at which this handler will be triggered
      * @param bool   $bubble     Whether the messages that are handled can bubble up the stack or not
      * @param bool   $useCurl    Whether to use cURL extension when available or not
      * @param int    $timeout    Maximum time to wait for requests to finish
      * @param bool   $verifyPeer Whether to use SSL certificate verification or not
      */
-    public function __construct($token, $chatId, $level = Logger::DEBUG, $bubble = true, $useCurl = true, $timeout = 10, $verifyPeer = true)
+    public function __construct(string $token, int $chatId, int|string|Level $level = Level::Debug, bool $bubble = true, bool $useCurl = true, int $timeout = 10, bool $verifyPeer = true)
     {
         $this->token = $token;
         $this->chatId = $chatId;
@@ -83,7 +84,7 @@ class TelegramHandler extends AbstractProcessingHandler
     /**
      * {@inheritdoc}
      */
-    protected function write(array $record): void
+    protected function write(LogRecord $record): void
     {
         $message = $record['formatted'] ?? $record['message'];
 
@@ -115,7 +116,19 @@ class TelegramHandler extends AbstractProcessingHandler
         }
 
         if (!empty($messages)) {
-            $this->write(['formatted' => $this->getFormatter()->formatBatch($messages)]);
+            $datetime = new \DateTimeImmutable();
+
+            $this->write(
+                new LogRecord(
+                    $datetime,
+                    '',
+                    Level::Debug,
+                    '',
+                    [],
+                    [],
+                    $this->getFormatter()->formatBatch($messages)
+                )
+            );
         }
     }
 
@@ -126,7 +139,7 @@ class TelegramHandler extends AbstractProcessingHandler
      *
      * @return bool
      */
-    private function send($message)
+    private function send(string $message): bool
     {
         $url = self::BASE_URI . '/bot' . $this->token . '/sendMessage';
         $data = [

@@ -12,6 +12,7 @@ namespace jacklul\MonologTelegramHandler;
 
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\LineFormatter;
+use Monolog\LogRecord;
 
 /**
  * Formats a message to output suitable for Telegram chat
@@ -49,7 +50,7 @@ class TelegramFormatter implements FormatterInterface
      * @param string $dateFormat The format of the timestamp: one supported by DateTime::format
      * @param string $separator  Record separator used when sending batch of logs in one message
      */
-    public function __construct($html = true, $format = null, $dateFormat = null, $separator = '-')
+    public function __construct(bool $html = true, string $format = null, string $dateFormat = null, string $separator = '-')
     {
         $this->html = $html;
         $this->format = $format ?: self::MESSAGE_FORMAT;
@@ -60,14 +61,14 @@ class TelegramFormatter implements FormatterInterface
     /**
      * {@inheritdoc}
      */
-    public function format(array $record)
+    public function format(LogRecord $record): string
     {
         $message = $this->format;
         $lineFormatter = new LineFormatter();
 
-        $record['message'] = preg_replace('/<([^<]+)>/', '&lt;$1&gt;', $record['message']); // Replace '<' and '>' with their special codes
-        $record['message'] = preg_replace('/^Stack trace:\n((^#\d.*\n?)*)$/m', "\n<b>Stack trace:</b>\n<code>$1</code>", $record['message']); // Put the stack trace inside <code></code> tags
-        $message = str_replace('%message%', $record['message'], $message);
+        $tmpmessage = preg_replace('/<([^<]+)>/', '&lt;$1&gt;', $record['message']); // Replace '<' and '>' with their special codes
+        $tmpmessage = preg_replace('/^Stack trace:\n((^#\d.*\n?)*)$/m', "\n<b>Stack trace:</b>\n<code>$1</code>", $tmpmessage); // Put the stack trace inside <code></code> tags
+        $message = str_replace('%message%', $tmpmessage, $message);
 
         if ($record['context']) {
             $context = '<b>Context:</b> ';
@@ -85,6 +86,7 @@ class TelegramFormatter implements FormatterInterface
             $message = str_replace('%extra%', '', $message);
         }
 
+        /** @param \DateTimeImmutable $record['datetime'] */
         $message = str_replace(['%level_name%', '%channel%', '%date%'], [$record['level_name'], $record['channel'], $record['datetime']->format($this->dateFormat)], $message);
 
         if ($this->html === false) {
@@ -97,7 +99,7 @@ class TelegramFormatter implements FormatterInterface
     /**
      * {@inheritdoc}
      */
-    public function formatBatch(array $records)
+    public function formatBatch(array $records): string
     {
         $message = '';
         foreach ($records as $record) {

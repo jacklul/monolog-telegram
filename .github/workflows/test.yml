@@ -20,9 +20,6 @@ jobs:
       
     - name: Install PHP dependencies through Composer
       uses: php-actions/composer@v6
-      with:
-        version: 2
-        php_version: 7.4
 
     - name: Check code using PHP_CodeSniffer 
       run: composer check-code
