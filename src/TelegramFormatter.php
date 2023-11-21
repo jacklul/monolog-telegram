@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Monolog Telegram Handler package.
  *
@@ -46,15 +47,15 @@ class TelegramFormatter implements FormatterInterface
      * @var array
      */
     private $emojis = [
-        'DEBUG' => '🐞', 
-        'INFO' => 'ℹ️', 
-        'NOTICE' => '📌', 
-        'WARNING' => '⚠️',
-        'ERROR' => '❌',
-        'CRITICAL' => '💀',
-        'ALERT' => '🛎️',
+        'DEBUG'     => '🐞',
+        'INFO'      => 'ℹ️',
+        'NOTICE'    => '📌',
+        'WARNING'   => '⚠️',
+        'ERROR'     => '❌',
+        'CRITICAL'  => '💀',
+        'ALERT'     => '🛎️',
         'EMERGENCY' => '🚨',
-    ];    
+    ];
 
     /**
      * Formatter constructor
@@ -71,7 +72,7 @@ class TelegramFormatter implements FormatterInterface
         $this->format = $format ?: self::MESSAGE_FORMAT;
         $this->dateFormat = $dateFormat ?: self::DATE_FORMAT;
         $this->separator = $separator;
-        $emojiArray != null && $this->emojis = $emojiArray;
+        $emojiArray !== null && $this->emojis = $emojiArray;
     }
 
     /**
@@ -102,7 +103,7 @@ class TelegramFormatter implements FormatterInterface
             $message = str_replace('%extra%', '', $message);
         }
 
-        $emoji = $this->emojis[$record['level_name']] ?? $this->emojis['DEFAULT'] ?? '🐞';        
+        $emoji = $this->emojis[$record['level_name']] ?? $this->emojis['DEFAULT'] ?? '🐞';
 
         /** @param \DateTimeImmutable $record['datetime'] */
         $message = str_replace(['%emoji%', '%level_name%', '%channel%', '%date%'], [$emoji, $record['level_name'], $record['channel'], $record['datetime']->format($this->dateFormat)], $message);
