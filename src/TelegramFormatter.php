@@ -72,7 +72,7 @@ class TelegramFormatter implements FormatterInterface
         $this->format = $format ?: self::MESSAGE_FORMAT;
         $this->dateFormat = $dateFormat ?: self::DATE_FORMAT;
         $this->separator = $separator;
-        $emojiArray !== null && $this->emojis = $emojiArray;
+        $emojiArray !== null && $this->emojis = array_replace($this->emojis, $emojiArray);
     }
 
     /**
