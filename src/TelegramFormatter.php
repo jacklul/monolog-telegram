@@ -19,7 +19,7 @@ use Monolog\LogRecord;
  */
 class TelegramFormatter implements FormatterInterface
 {
-    const MESSAGE_FORMAT = "<b>%level_name%</b> (%channel%) [%date%]\n\n%message%\n\n%context%%extra%";
+    const MESSAGE_FORMAT = "%emoji% <b>%level_name%</b> (%channel%) [%date%]\n\n%message%\n\n%context%%extra%";
     const DATE_FORMAT = 'Y-m-d H:i:s e';
 
     /**
@@ -58,6 +58,29 @@ class TelegramFormatter implements FormatterInterface
         $this->separator = $separator;
     }
 
+    private function getEmoji($level_name){
+        switch($level_name){
+            case "DEBUG":
+                return '🐞';
+            case "INFO":
+                return 'ℹ️';
+            case "NOTICE":
+                return '📌';
+            case "WARNING":
+                return '⚠️';
+            case "ERROR":
+                return '❌';
+            case "CRITICAL":
+                return '💀';
+            case "ALERT":
+                return '🛎️';
+            case "EMERGENCY":
+                return '🚨';
+            default:
+                return '🐞';
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -86,8 +109,10 @@ class TelegramFormatter implements FormatterInterface
             $message = str_replace('%extra%', '', $message);
         }
 
+        $emoji = $this->getEmoji($record['level_name']);
+
         /** @param \DateTimeImmutable $record['datetime'] */
-        $message = str_replace(['%level_name%', '%channel%', '%date%'], [$record['level_name'], $record['channel'], $record['datetime']->format($this->dateFormat)], $message);
+        $message = str_replace(['%emoji%', '%level_name%', '%channel%', '%date%'], [$emoji, $record['level_name'], $record['channel'], $record['datetime']->format($this->dateFormat)], $message);
 
         if ($this->html === false) {
             $message = strip_tags($message);
