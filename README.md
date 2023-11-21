@@ -11,7 +11,7 @@ Send your logs through Telegram bot to any chat and make them look fancy!
 
  - Telegram Bot API token - [see here](https://core.telegram.org/bots#creating-a-new-bot) to learn how to obtain one
  - ID of the chat to which you want to send the logs - see below
- 
+
 #### Obtaining chat ID
 
 One of the simplest ways to do that is to interact with the bot in the target chat:
@@ -75,11 +75,14 @@ You can customize the formatter:
 
 ```php
 $html = true;    // Choose whether to send the message in HTMl format
-$format = "<b>%level_name%</b> (%channel%) [%date%]\n\n%message%\n\n%context%%extra%";   // Error (My project) [2018-05-01 15:55:15 UTC]
+$format = "%emoji% <b>%level_name%</b> (%channel%) [%date%]\n\n%message%\n\n%context%%extra%";   // EMOJI ERROR (My project) [2018-05-01 15:55:15 UTC]
 $date_format = 'Y-m-d H:i:s e';       // 2018-05-01 15:55:15 UTC, format must be supported by DateTime::format
 $separator = '-';       // Seperation character for batch processing - when empty one empty line is used
+$emojis = [         // Override any level emoji
+    'NOTICE' => '🤖'
+];
 
-$handler->setFormatter(new TelegramFormatter($html, $format, $date_format, $separator));
+$handler->setFormatter(new TelegramFormatter($html, $format, $date_format, $separator, $emojis));
 ```
 
 ## Running tests
