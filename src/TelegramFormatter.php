@@ -19,7 +19,7 @@ use Monolog\LogRecord;
  */
 class TelegramFormatter implements FormatterInterface
 {
-    const MESSAGE_FORMAT = "<b>%level_name%</b> (%channel%) [%date%]\n\n%message%\n\n%context%%extra%";
+    const MESSAGE_FORMAT = "%emoji% <b>%level_name%</b> (%channel%) [%date%]\n\n%message%\n\n%context%%extra%";
     const DATE_FORMAT = 'Y-m-d H:i:s e';
 
     /**
@@ -43,19 +43,35 @@ class TelegramFormatter implements FormatterInterface
     private $separator;
 
     /**
+     * @var array
+     */
+    private $emojis = [
+        'DEBUG' => '🐞', 
+        'INFO' => 'ℹ️', 
+        'NOTICE' => '📌', 
+        'WARNING' => '⚠️',
+        'ERROR' => '❌',
+        'CRITICAL' => '💀',
+        'ALERT' => '🛎️',
+        'EMERGENCY' => '🚨',
+    ];    
+
+    /**
      * Formatter constructor
      *
      * @param bool   $html       Format as HTML or not
      * @param string $format     The format of the message
      * @param string $dateFormat The format of the timestamp: one supported by DateTime::format
      * @param string $separator  Record separator used when sending batch of logs in one message
+     * @param array  $emojiArray Array containing emojis for each record level name
      */
-    public function __construct(bool $html = true, string $format = null, string $dateFormat = null, string $separator = '-')
+    public function __construct(bool $html = true, string $format = null, string $dateFormat = null, string $separator = '-', array $emojiArray = null)
     {
         $this->html = $html;
         $this->format = $format ?: self::MESSAGE_FORMAT;
         $this->dateFormat = $dateFormat ?: self::DATE_FORMAT;
         $this->separator = $separator;
+        $emojiArray != null && $this->emojis = $emojiArray;
     }
 
     /**
@@ -86,8 +102,10 @@ class TelegramFormatter implements FormatterInterface
             $message = str_replace('%extra%', '', $message);
         }
 
+        $emoji = $this->emojis[$record['level_name']] ?? $this->emojis['DEFAULT'] ?? '🐞';        
+
         /** @param \DateTimeImmutable $record['datetime'] */
-        $message = str_replace(['%level_name%', '%channel%', '%date%'], [$record['level_name'], $record['channel'], $record['datetime']->format($this->dateFormat)], $message);
+        $message = str_replace(['%emoji%', '%level_name%', '%channel%', '%date%'], [$emoji, $record['level_name'], $record['channel'], $record['datetime']->format($this->dateFormat)], $message);
 
         if ($this->html === false) {
             $message = strip_tags($message);
