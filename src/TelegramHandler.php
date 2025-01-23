@@ -62,21 +62,32 @@ class TelegramHandler extends AbstractProcessingHandler
     private bool $verifyPeer;
 
     /**
-     * @param string $token      Telegram bot API token
-     * @param int    $chatId     Chat ID to which logs will be sent
-     * @param Level  $level      The minimum logging level at which this handler will be triggered
-     * @param bool   $bubble     Whether the messages that are handled can bubble up the stack or not
-     * @param bool   $useCurl    Whether to use cURL extension when available or not
-     * @param int    $timeout    Maximum time to wait for requests to finish
-     * @param bool   $verifyPeer Whether to use SSL certificate verification or not
+     * Thread ID for group chats with Topics feature enabled.
+     *
+     * Allows to send a message in a specific thread, instead of "General".
+     *
+     * @var int|null
      */
-    public function __construct(string $token, int $chatId, int|string|Level $level = Level::Debug, bool $bubble = true, bool $useCurl = true, int $timeout = 10, bool $verifyPeer = true)
+    private ?int $messageThreadId;
+
+    /**
+     * @param string    $token      Telegram bot API token
+     * @param int       $chatId     Chat ID to which logs will be sent
+     * @param Level     $level      The minimum logging level at which this handler will be triggered
+     * @param bool      $bubble     Whether the messages that are handled can bubble up the stack or not
+     * @param bool      $useCurl    Whether to use cURL extension when available or not
+     * @param int       $timeout    Maximum time to wait for requests to finish
+     * @param bool      $verifyPeer Whether to use SSL certificate verification or not
+     * @param int|null  $messageThreadId Thread ID for group chats with Topics feature enabled
+     */
+    public function __construct(string $token, int $chatId, int|string|Level $level = Level::Debug, bool $bubble = true, bool $useCurl = true, int $timeout = 10, bool $verifyPeer = true, ?int $messageThreadId = NULL)
     {
         $this->token = $token;
         $this->chatId = $chatId;
         $this->useCurl = $useCurl;
         $this->timeout = $timeout;
         $this->verifyPeer = $verifyPeer;
+        $this->messageThreadId = $messageThreadId;
 
         parent::__construct($level, $bubble);
     }
@@ -151,6 +162,10 @@ class TelegramHandler extends AbstractProcessingHandler
         // Set HTML parse mode when HTML code is detected
         if (preg_match('/<[^<]+>/', $data['text']) !== false) {
             $data['parse_mode'] = 'HTML';
+        }
+
+        if ($this->messageThreadId) {
+            $data['message_thread_id'] = $this->messageThreadId;
         }
 
         if ($this->useCurl === true && extension_loaded('curl')) {
