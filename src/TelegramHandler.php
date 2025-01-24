@@ -71,14 +71,14 @@ class TelegramHandler extends AbstractProcessingHandler
     private ?int $messageThreadId;
 
     /**
-     * @param string    $token           Telegram bot API token
-     * @param int       $chatId          Chat ID to which logs will be sent
-     * @param Level     $level           The minimum logging level at which this handler will be triggered
-     * @param bool      $bubble          Whether the messages that are handled can bubble up the stack or not
-     * @param bool      $useCurl         Whether to use cURL extension when available or not
-     * @param int       $timeout         Maximum time to wait for requests to finish
-     * @param bool      $verifyPeer      Whether to use SSL certificate verification or not
-     * @param int|null  $messageThreadId Thread ID for group chats with Topics feature enabled
+     * @param string           $token           Telegram bot API token
+     * @param int              $chatId          Chat ID to which logs will be sent
+     * @param int|string|Level $level           The minimum logging level at which this handler will be triggered
+     * @param bool             $bubble          Whether the messages that are handled can bubble up the stack or not
+     * @param bool             $useCurl         Whether to use cURL extension when available or not
+     * @param int              $timeout         Maximum time to wait for requests to finish
+     * @param bool             $verifyPeer      Whether to use SSL certificate verification or not
+     * @param int|null         $messageThreadId Thread ID for group chats with Topics feature enabled
      */
     public function __construct(string $token, int $chatId, int|string|Level $level = Level::Debug, bool $bubble = true, bool $useCurl = true, int $timeout = 10, bool $verifyPeer = true, ?int $messageThreadId = null)
     {
