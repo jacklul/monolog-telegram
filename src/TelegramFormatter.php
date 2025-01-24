@@ -66,7 +66,7 @@ class TelegramFormatter implements FormatterInterface
      * @param string $separator  Record separator used when sending batch of logs in one message
      * @param array  $emojiArray Array containing emojis for each record level name
      */
-    public function __construct(bool $html = true, string $format = null, string $dateFormat = null, string $separator = '-', array $emojiArray = null)
+    public function __construct(bool $html = true, ?string $format = null, ?string $dateFormat = null, string $separator = '-', ?array $emojiArray = null)
     {
         $this->html = $html;
         $this->format = $format ?: self::MESSAGE_FORMAT;
