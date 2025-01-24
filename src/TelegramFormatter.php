@@ -60,11 +60,11 @@ class TelegramFormatter implements FormatterInterface
     /**
      * Formatter constructor
      *
-     * @param bool   $html       Format as HTML or not
-     * @param string $format     The format of the message
-     * @param string $dateFormat The format of the timestamp: one supported by DateTime::format
-     * @param string $separator  Record separator used when sending batch of logs in one message
-     * @param array  $emojiArray Array containing emojis for each record level name
+     * @param bool        $html       Format as HTML or not
+     * @param string|null $format     The format of the message
+     * @param string|null $dateFormat The format of the timestamp: one supported by DateTime::format
+     * @param string      $separator  Record separator used when sending batch of logs in one message
+     * @param array|null  $emojiArray Array containing emojis for each record level name
      */
     public function __construct(bool $html = true, ?string $format = null, ?string $dateFormat = null, string $separator = '-', ?array $emojiArray = null)
     {
