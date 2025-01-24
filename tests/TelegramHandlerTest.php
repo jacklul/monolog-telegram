@@ -44,7 +44,7 @@ class TelegramHandlerTest extends TestCase
         }
 
         sleep(1);
-        
+
         if (extension_loaded('curl')) {
             $logger = new Logger('PHPUnit');
             $handler = new TelegramHandler($this->token, $this->chat_id, Level::Debug);
@@ -57,12 +57,12 @@ class TelegramHandlerTest extends TestCase
             }
 
             $this->assertTrue(true);
-            
+
             sleep(1);
         }
 
         $this->assertTrue(true);
-        
+
         $logger = new Logger('PHPUnit');
         $handler = new TelegramHandler($this->token, $this->chat_id, Level::Debug);
         $handler = new BufferHandler($handler);
