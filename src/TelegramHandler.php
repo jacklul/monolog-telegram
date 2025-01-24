@@ -80,7 +80,7 @@ class TelegramHandler extends AbstractProcessingHandler
      * @param bool      $verifyPeer Whether to use SSL certificate verification or not
      * @param int|null  $messageThreadId Thread ID for group chats with Topics feature enabled
      */
-    public function __construct(string $token, int $chatId, int|string|Level $level = Level::Debug, bool $bubble = true, bool $useCurl = true, int $timeout = 10, bool $verifyPeer = true, ?int $messageThreadId = NULL)
+    public function __construct(string $token, int $chatId, int|string|Level $level = Level::Debug, bool $bubble = true, bool $useCurl = true, int $timeout = 10, bool $verifyPeer = true, ?int $messageThreadId = null)
     {
         $this->token = $token;
         $this->chatId = $chatId;
