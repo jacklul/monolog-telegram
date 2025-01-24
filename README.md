@@ -44,7 +44,7 @@ $handler = new TelegramHandler(
     true,  // Use cURL or not? default: true = use when available
     10,    // Timeout for API requests, default: 10
     true   // Verify SSL certificate or not? default: true, false only useful for development - avoid in production
-    2,     // (optional) Target Topic ID (thread ID) for group chats
+    2,     // (optional) Target Thread ID for group chats with Topics enabled
 );
 
 $handler->setFormatter(new TelegramFormatter());    // Usage of this formatter is optional but recommended if you want better message layout
