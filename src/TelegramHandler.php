@@ -71,6 +71,13 @@ class TelegramHandler extends AbstractProcessingHandler
     private ?int $messageThreadId;
 
     /**
+     * Proxy URL for requests (e.g. socks5://host:port, http://host:port)
+     *
+     * @var string|null
+     */
+    private ?string $proxy;
+
+    /**
      * @param string           $token           Telegram bot API token
      * @param int              $chatId          Chat ID to which logs will be sent
      * @param int|string|Level $level           The minimum logging level at which this handler will be triggered
@@ -79,8 +86,9 @@ class TelegramHandler extends AbstractProcessingHandler
      * @param int              $timeout         Maximum time to wait for requests to finish
      * @param bool             $verifyPeer      Whether to use SSL certificate verification or not
      * @param int|null         $messageThreadId Thread ID for group chats with Topics feature enabled
+     * @param string|null      $proxy           Proxy URL (e.g. socks5://host:port, http://host:port)
      */
-    public function __construct(string $token, int $chatId, int|string|Level $level = Level::Debug, bool $bubble = true, bool $useCurl = true, int $timeout = 10, bool $verifyPeer = true, ?int $messageThreadId = null)
+    public function __construct(string $token, int $chatId, int|string|Level $level = Level::Debug, bool $bubble = true, bool $useCurl = true, int $timeout = 10, bool $verifyPeer = true, ?int $messageThreadId = null, ?string $proxy = null)
     {
         $this->token = $token;
         $this->chatId = $chatId;
@@ -88,6 +96,7 @@ class TelegramHandler extends AbstractProcessingHandler
         $this->timeout = $timeout;
         $this->verifyPeer = $verifyPeer;
         $this->messageThreadId = $messageThreadId;
+        $this->proxy = $proxy;
 
         parent::__construct($level, $bubble);
     }
@@ -177,6 +186,10 @@ class TelegramHandler extends AbstractProcessingHandler
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->verifyPeer);
             curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 
+            if ($this->proxy !== null) {
+                curl_setopt($ch, CURLOPT_PROXY, $this->proxy);
+            }
+
             $result = curl_exec($ch);
             if (!$result) {
                 throw new \RuntimeException('Request to Telegram API failed: ' . curl_error($ch));
@@ -194,6 +207,11 @@ class TelegramHandler extends AbstractProcessingHandler
                     'verify_peer_name' => $this->verifyPeer,
                 ],
             ];
+
+            if ($this->proxy !== null) {
+                $opts['http']['proxy'] = $this->proxy;
+                $opts['http']['request_fulluri'] = true;
+            }
 
             $result = @file_get_contents($url, false, stream_context_create($opts));
             if (!$result) {
