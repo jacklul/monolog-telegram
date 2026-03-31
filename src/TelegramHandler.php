@@ -86,17 +86,33 @@ class TelegramHandler extends AbstractProcessingHandler
      * @param int              $timeout         Maximum time to wait for requests to finish
      * @param bool             $verifyPeer      Whether to use SSL certificate verification or not
      * @param int|null         $messageThreadId Thread ID for group chats with Topics feature enabled
-     * @param string|null      $proxy           Proxy URL (e.g. socks5://host:port, http://host:port)
+     * @param string|null      $proxy           Proxy URL (e.g. socks5://host:port, http://host:port, tcp://host:port).
+*    *                                          Only HTTP proxies are supported when useCurl is false.
      */
     public function __construct(string $token, int $chatId, int|string|Level $level = Level::Debug, bool $bubble = true, bool $useCurl = true, int $timeout = 10, bool $verifyPeer = true, ?int $messageThreadId = null, ?string $proxy = null)
     {
         $this->token = $token;
         $this->chatId = $chatId;
-        $this->useCurl = $useCurl;
+        $this->useCurl = $useCurl && extension_loaded('curl');
         $this->timeout = $timeout;
         $this->verifyPeer = $verifyPeer;
         $this->messageThreadId = $messageThreadId;
         $this->proxy = $proxy;
+
+        if (!$this->useCurl && !empty($proxy)) {
+            if (stripos($proxy, 'socks') === 0) {
+                throw new \RuntimeException('SOCKS proxies are only supported when useCurl is enabled.');
+            }
+
+            if (stripos($proxy, 'http://') === 0 || stripos($proxy, 'https://') === 0) {
+                $parts = parse_url($proxy);
+                if ($parts !== false && isset($parts['host'])) {
+                    $host = $parts['host'];
+                    $port = $parts['port'] ?? 80;
+                    $this->proxy = 'tcp://' . $host . ':' . $port;
+                }
+            }
+        }
 
         parent::__construct($level, $bubble);
     }
@@ -177,7 +193,7 @@ class TelegramHandler extends AbstractProcessingHandler
             $data['message_thread_id'] = $this->messageThreadId;
         }
 
-        if ($this->useCurl === true && extension_loaded('curl')) {
+        if ($this->useCurl === true) {
             $ch = curl_init();
 
             curl_setopt($ch, CURLOPT_URL, $url);
