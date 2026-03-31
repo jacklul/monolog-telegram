@@ -9,23 +9,26 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout the repository
-      uses: actions/checkout@v4
+      - name: Checkout the repository
+        uses: actions/checkout@v4
 
-    - name: Cache Composer dependencies
-      uses: actions/cache@v4
-      with:
-        path: /tmp/composer-cache
-        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-      
-    - name: Install PHP dependencies through Composer
-      uses: php-actions/composer@v6
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
 
-    - name: Check code using PHP_CodeSniffer 
-      run: composer check-code
+      - name: Install PHP dependencies through Composer
+        uses: php-actions/composer@v6
 
-    - name: Run tests using PHPUnit
-      run: composer test
-      env:
-        TELEGRAM_TOKEN: '${{ secrets.TELEGRAM_TOKEN }}'
-        TELEGRAM_CHAT_ID: '${{ secrets.TELEGRAM_CHAT_ID }}'
+      - name: Install PHP dependencies through Composer
+        uses: php-actions/composer@v6
+
+      - name: Check code using PHP_CodeSniffer 
+        run: composer check-code
+
+      - name: Run tests using PHPUnit
+        run: composer test
+        env:
+          TELEGRAM_TOKEN: '${{ secrets.TELEGRAM_TOKEN }}'
+          TELEGRAM_CHAT_ID: '${{ secrets.TELEGRAM_CHAT_ID }}'
