@@ -165,7 +165,7 @@ class TelegramHandler extends AbstractProcessingHandler
         $data = [
             'chat_id'                  => $this->chatId,
             'text'                     => $message,
-            'disable_web_page_preview' => true // Just in case there is a link in the message
+            'link_preview_options'     => '{"is_disabled":true}', // Bot API 7.0
         ];
 
         // Set HTML parse mode when HTML code is detected
