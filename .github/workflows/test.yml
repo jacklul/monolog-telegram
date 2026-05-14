@@ -21,9 +21,6 @@ jobs:
       - name: Install PHP dependencies through Composer
         uses: php-actions/composer@v6
 
-      - name: Install PHP dependencies through Composer
-        uses: php-actions/composer@v6
-
       - name: Check code using PHP_CodeSniffer 
         run: composer check-code
 
